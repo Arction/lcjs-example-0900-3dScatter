@@ -9,19 +9,14 @@ const {
     lightningChart,
     SolidFill,
     ColorRGBA,
-    UIElementBuilders,
-    UILayoutBuilders,
+    PointStyle3D,
     Themes
 } = lcjs
 
 // Extract required parts from xyData.
 const {
-    createProgressiveRandomGenerator
+    createWaterDropDataGenerator
 } = require('@arction/xydata')
-
-// Define colors
-const red = new SolidFill({ color: ColorRGBA(255, 100, 100) })
-const blue = new SolidFill({ color: ColorRGBA(100, 100, 255) })
 
 // Initiate chart
 const chart3D = lightningChart().Chart3D({
@@ -34,81 +29,53 @@ chart3D.getDefaultAxisX().setTitle('Axis X')
 chart3D.getDefaultAxisY().setTitle('Axis Y')
 chart3D.getDefaultAxisZ().setTitle('Axis Z')
 
-// Create two new Point Series
-const blueSeries = chart3D.addPointSeries({ pointShape: 'sphere' })
-    .setPointStyle((pointStyle) => pointStyle
-        // Change the point fillStyle.
-        .setFillStyle(blue)
-        // Change point size.
-        .setSize(30))
-const redSeries = chart3D.addPointSeries({ pointShape: 'sphere' })
-    .setPointStyle((pointStyle) => pointStyle
-        .setFillStyle(red)
-        .setSize(30))
+// Create Point Series for rendering max Y coords.
+const pointSeriesMaxCoords = chart3D.addPointSeries()
+    .setPointStyle(new PointStyle3D.Triangulated({
+        fillStyle: new SolidFill({ color: ColorRGBA(224, 152, 0) }),
+        size: 10,
+        shape: 'sphere'
+    }))
 
-// Add layout UI Element for checkboxes.
-const layout = chart3D.addUIElement(UILayoutBuilders.Column)
-    .setPosition({ x: 90, y: 90 })
-    .setOrigin({ x: 1, y: 1 })
+// Create another Point Series for rendering other Y coords than Max.
+const pointSeriesOtherCoords = chart3D.addPointSeries()
+    .setPointStyle(new PointStyle3D.Triangulated({
+        fillStyle: new SolidFill({ color: ColorRGBA(255, 0, 0) }),
+        size: 5,
+        shape: 'cube'
+    }))
 
-// Flag for camera rotation
-let rotateCamera = false
-// Add button for toggling camera rotation into the layout UI Element
-const rotateCameraButton = layout.addElement(UIElementBuilders.CheckBox)
-    .setText('Rotate camera')
-rotateCameraButton.onSwitch((_, state) => {
-    rotateCamera = state
-})
-rotateCameraButton.setOn(rotateCamera)
 
-// Method to handle animating camera rotation.
-let cameraAngle = 0
-const dist = 1
-const animateCameraRotation = () => {
-    if (rotateCamera) {
-        chart3D.setCameraLocation(
-            {
-                x: Math.cos(cameraAngle) * dist,
-                y: 0.50,
-                z: Math.sin(cameraAngle) * dist
+// Generate heatmap data for depicting amount of scattered points along the XZ plane.
+let totalPointsAmount = 0
+const rows = 40
+const columns = 60
+createWaterDropDataGenerator()
+    .setRows( rows )
+    .setColumns( columns )
+    .generate()
+    .then( data => {
+        // 'data' is a number Matrix number[][], that can be read as data[row][column].
+        for ( let row = 0; row < rows; row ++ ) {
+            for ( let column = 0; column < columns; column ++ ) {
+                const value = data[row][column]
+                // Generate 'value' amount of points along this XZ coordinate,
+                // with the Y coordinate range based on 'value'.
+                const pointsAmount = Math.ceil( value / 100 )
+                const yMin = 0
+                const yMax = value
+                for ( let iPoint = 0; iPoint < pointsAmount; iPoint ++ ) {
+                    const y = yMin + Math.random() * (yMax - yMin)
+                    pointSeriesOtherCoords.add({ x: row, z: column, y })
+                    totalPointsAmount ++
+                }
+                pointSeriesMaxCoords.add({ x: row, z: column, y: yMax })
+                totalPointsAmount ++
             }
-        )
-        cameraAngle += 0.005
-    }
-    requestAnimationFrame(animateCameraRotation)
-}
-animateCameraRotation()
+        }
 
-// Generate points for the red series.
-createProgressiveRandomGenerator()
-    .setNumberOfPoints(30)
-    .generate()
-    .toPromise()
-    .then((d) => d.map((p) => ({
-        x: p.x - 1,
-        y: p.y * 1,
-        z: Math.random()
-    })))
-    .then((d) => {
-        setInterval(() => {
-            redSeries.add(d.splice(0, 10))
-
-        })
+        chart3D.setTitle(chart3D.getTitle() + ` (${totalPointsAmount} data points)`)
+        // Set explicit Y Axis interval.
+        chart3D.getDefaultAxisY().setInterval(0, 150, 2000, true)
     })
 
-// Generate points for the blue series.
-createProgressiveRandomGenerator()
-    .setNumberOfPoints(30)
-    .generate()
-    .toPromise()
-    .then((d) => d.map((p) => ({
-        x: p.x - 1,
-        y: p.y * 1,
-        z: Math.random()
-    })))
-    .then((d) => {
-        setInterval(() => {
-            blueSeries.add(d.splice(0, 10))
-
-        })
-    })
