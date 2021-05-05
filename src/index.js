@@ -36,6 +36,7 @@ const pointSeriesMaxCoords = chart3D.addPointSeries()
         size: 10,
         shape: 'sphere'
     }))
+    .setName('Max coords')
 
 // Create another Point Series for rendering other Y coords than Max.
 const pointSeriesOtherCoords = chart3D.addPointSeries()
@@ -44,7 +45,10 @@ const pointSeriesOtherCoords = chart3D.addPointSeries()
         size: 5,
         shape: 'cube'
     }))
+    .setName('Below Max')
 
+// Add LegendBox to chart.
+chart3D.addLegendBox().add(chart3D)
 
 // Generate heatmap data for depicting amount of scattered points along the XZ plane.
 let totalPointsAmount = 0
