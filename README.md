@@ -77,6 +77,6 @@ Direct developer email support can be purchased through a [Support Plan][4] or b
 © Arction Ltd 2009-2020. All rights reserved.
 
 
-[3D chart]: https://www.arction.com/lightningchart-js-api-documentation/v3.0.0/classes/chart3d.html
-[3D point series]: https://www.arction.com/lightningchart-js-api-documentation/v3.0.0/classes/pointseries3d.html
+[3D chart]: https://www.arction.com/lightningchart-js-api-documentation/v3.0.1/classes/chart3d.html
+[3D point series]: https://www.arction.com/lightningchart-js-api-documentation/v3.0.1/classes/pointseries3d.html
 
