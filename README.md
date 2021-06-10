@@ -1,6 +1,6 @@
-# 3D Scatter Chart
+# JavaScript 3D Scatter Chart
 
-![3D Scatter Chart](3dScatter.png)
+![JavaScript 3D Scatter Chart](3dScatter.png)
 
 This demo application belongs to the set of examples for LightningChart JS, data visualization library for JavaScript.
 
