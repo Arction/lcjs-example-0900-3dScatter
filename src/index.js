@@ -20,6 +20,7 @@ const {
 
 // Initiate chart
 const chart3D = lightningChart().Chart3D({
+    disableAnimations: true,
     // theme: Themes.darkGold
 })
     .setTitle('3D Scatter Chart')
