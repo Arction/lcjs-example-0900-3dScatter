@@ -14,7 +14,9 @@ const { lightningChart, SolidFill, ColorRGBA, PointStyle3D, Themes } = lcjs
 const { createWaterDropDataGenerator } = xydata
 
 // Initiate chart
-const chart3D = lightningChart()
+const chart3D = lightningChart({
+            resourcesBaseUrl: new URL(document.head.baseURI).origin + new URL(document.head.baseURI).pathname + 'resources/',
+        })
     .Chart3D({
         theme: Themes[new URLSearchParams(window.location.search).get('theme') || 'darkGold'] || undefined,
     })
